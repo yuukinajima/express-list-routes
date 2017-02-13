@@ -1,4 +1,4 @@
-const _       = require('lodash'),
+const _     = require('lodash'),
     colors  = require('colors'),
     options = {
         prefix: '',
@@ -22,28 +22,33 @@ function colorMethod(method) {
     }
 }
 
-module.exports = function() {
+module.exports = () => {
     _.each(arguments, (arg) => {
         if (_.isString(arg)) {
             console.info(arg.magenta);
-        } else if (_.isObject(arg)) {
-            if(!arg.stack) {
-                _.assign(options, arg);
-            } else {
-                _.each(arg.stack, (stack) => {
-                    if (stack.route) {
-                        const route = stack.route,
-                            methodsDone = {};
-                        _.each(route.stack, (r) => {
-                          const method = r.method ? r.method.toUpperCase() : null;
-                          if(!methodsDone[method] && method){
-                                console.info(colorMethod(method), spacer(options.spacer - method.length), options.prefix + route.path);
-                                methodsDone[method] = true;
-                            }
-                        });
+            return;
+        }
+        if (!_.isObject(arg)) {
+          return;
+        }
+        
+        if(!arg.stack) {
+            _.assign(options, arg);
+            return
+        }
+
+        _.each(arg.stack, (stack) => {
+            if (stack.route) {
+                const route = stack.route,
+                      methodsDone = {};
+                _.each(route.stack, (r) => {
+                  const method = r.method ? r.method.toUpperCase() : null;
+                  if(!methodsDone[method] && method){
+                        console.info(colorMethod(method), spacer(options.spacer - method.length), options.prefix + route.path);
+                        methodsDone[method] = true;
                     }
                 });
             }
-        }
+        });
     });
 };
