@@ -1,8 +1,8 @@
-const _     = require('lodash'),
-    colors  = require('colors');
+const _ = require('lodash');
+const colors = require('colors');
 
 function spacer(x) {
-    var res = '';
+    let res = '';
     while(x--) res += ' ';
     return res;
 }
@@ -18,14 +18,15 @@ function colorMethod(method) {
     }
 }
 
-module.exports = function prrintRoutes() {
+module.exports = function printRoutes() {
     const options = {
         prefix: '',
         spacer: 7,
         routerSplit: true,
+        recursion: true,
     };
 
-    _.each(arguments, function(arg) {
+    _.each(arguments, arg => {
         if(_.isString(arg)) {
             console.info(arg.magenta);
             return;
@@ -40,19 +41,21 @@ module.exports = function prrintRoutes() {
             return;
         }
 
-        _.each(arg.stack, function(stack) {
-            if(stack.route) {
-                const route = stack.route,
-                    methodsDone = {};
-                _.each(route.stack, function(r) {
-                    var method = r.method ? r.method.toUpperCase() : null;
-                    if(!methodsDone[method] && method) {
-                        console.info(colorMethod(method), spacer(options.spacer - method.length), options.prefix + route.path);
-                        methodsDone[method] = true;
-                    }
-                });
-            }
+        _.each(arg.stack.filter(r => r.route), stack => {
+            const route = stack.route;
+            const methodsDone = {};
+            _.each(route.stack, r => {
+                const method = r.method ? r.method.toUpperCase() : null;
+                if(!methodsDone[method] && method) {
+                    console.info(colorMethod(method), spacer(options.spacer - method.length), options.prefix + route.path);
+                    methodsDone[method] = true;
+                }
+            });
         });
+
+        if(!options.recursion) {
+            return;
+        }
 
         _.each(arg.stack.filter(r => r.name === 'router'), router => {
             const matcher = router.regexp.toString();
@@ -61,10 +64,9 @@ module.exports = function prrintRoutes() {
             if(options.routerSplit) {
                 const Spliter = 'Router';
                 console.info('');
-                console.info(Spliter, spacer(options.spacer - Spliter.length), prefix);
+                console.info(Spliter, spacer(options.spacer - Spliter.length), prefix.substring(1));
             }
-            prrintRoutes({prefix}, router.handle);
+            printRoutes({prefix}, router.handle);
         });
-
     });
 };
