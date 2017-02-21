@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const colors = require('colors');
+const chalk = require('chalk');
 
 function spacer(x) {
     let res = '';
@@ -9,11 +9,11 @@ function spacer(x) {
 
 function colorMethod(method) {
     switch(method) {
-        case('POST'):   return method.yellow;
-        case('GET'):    return method.green;
-        case('PUT'):    return method.blue;
-        case('DELETE'): return method.red;
-        case('PATCH'):  return method.grey;
+        case('POST'):   return chalk.yellow(method);
+        case('GET'):    return chalk.green(method);
+        case('PUT'):    return chalk.blue(method);
+        case('DELETE'): return chalk.red(method);
+        case('PATCH'):  return chalk.grey(method);
         default:        return method;
     }
 }
@@ -28,7 +28,7 @@ module.exports = function printRoutes() {
 
     _.each(arguments, arg => {
         if(_.isString(arg)) {
-            console.info(arg.magenta);
+            console.info(chalk.magenta(arg));
             return;
         }
 
